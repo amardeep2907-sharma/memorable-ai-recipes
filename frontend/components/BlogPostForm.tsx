@@ -59,9 +59,9 @@ export default function BlogPostForm({
     setError(null);
     try {
       if (mode === "edit" && postId) {
-        await blogApi.update(postId, values);
+        await blogApi.update(postId, values as unknown as Record<string, unknown>);
       } else {
-        await blogApi.create(values);
+        await blogApi.create(values as unknown as Record<string, unknown>);
       }
       router.push("/dashboard?tab=posts");
     } catch {
