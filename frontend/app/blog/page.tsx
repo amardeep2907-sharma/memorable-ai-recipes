@@ -9,7 +9,6 @@ import {
   Sparkles,
   ArrowRight,
   Clock,
-  User,
   Calendar,
   BookOpen,
 } from "lucide-react";
@@ -151,7 +150,7 @@ export default function BlogPage() {
                       <span>•</span>
                       <span className="flex items-center gap-1">
                         <Clock className="h-3.5 w-3.5 text-plum" />
-                        {featuredPost.readTimeMinutes || 6} min read
+                        {(featuredPost as any).readTimeMinutes || 6} min read
                       </span>
                     </div>
 
@@ -200,6 +199,7 @@ export default function BlogPage() {
                     (post as any).coverImage || post.coverImageUrl || "";
                   const postExcerpt =
                     (post as any).summary || (post as any).excerpt;
+                  const readTime = (post as any).readTimeMinutes || 5;
 
                   return (
                     <Link
@@ -224,7 +224,7 @@ export default function BlogPage() {
                           )}
 
                           <div className="absolute right-3 top-3 rounded-full bg-black/50 px-2.5 py-1 font-mono text-[10px] text-white backdrop-blur-md">
-                            {post.readTimeMinutes || 5} min read
+                            {readTime} min read
                           </div>
                         </div>
 
