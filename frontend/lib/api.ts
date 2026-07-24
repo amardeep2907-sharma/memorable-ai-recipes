@@ -1,7 +1,7 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api",
+  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5001/api",
   withCredentials: true, // sends the httpOnly refresh-token cookie
 });
 
