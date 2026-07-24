@@ -99,12 +99,17 @@ export default function BlogPostPage() {
 
   const post = data.data;
 
-  // Defensive Image URL Check (Backend me key 'coverImage' ya 'coverImageUrl' dono ho sakti hai)
+  // Defensive Image URL Check
   const coverImageSrc =
     (post as any).coverImage ||
-    post.coverImageUrl ||
+    (post as any).coverImageUrl ||
     (post as any).imageUrl ||
     null;
+
+  const postTags = ((post as any).tags as string[] | undefined) || [];
+  const postAuthor = (post as any).author;
+  const postSummary = (post as any).summary || (post as any).excerpt;
+  const postReadTime = (post as any).readTimeMinutes || 6;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -119,7 +124,7 @@ export default function BlogPostPage() {
         </Link>
 
         <div className="flex items-center gap-3">
-          {user?._id === post.author?._id && (
+          {user?._id === postAuthor?._id && (
             <Link
               href={`/blog/${post.slug}/edit`}
               className="inline-flex items-center gap-1.5 rounded-full bg-plum/10 px-3.5 py-1.5 text-xs font-semibold text-plum transition-all hover:bg-plum hover:text-white"
@@ -145,14 +150,14 @@ export default function BlogPostPage() {
         </div>
       </div>
 
-      {/* Main 2-Column Layout (Article Left, Related Posts Right) */}
+      {/* Main 2-Column Layout */}
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
         {/* Left Main Article Column */}
         <article className="lg:col-span-8">
           {/* Tags */}
-          {post.tags && post.tags.length > 0 && (
+          {postTags.length > 0 && (
             <div className="flex flex-wrap gap-2">
-              {post.tags.map((tag) => (
+              {postTags.map((tag) => (
                 <span
                   key={tag}
                   className="inline-flex items-center gap-1 rounded-full bg-plum/10 px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-widest text-plum"
@@ -169,9 +174,9 @@ export default function BlogPostPage() {
           </h1>
 
           {/* Summary / Excerpt */}
-          {(post.summary || post.excerpt) && (
+          {postSummary && (
             <p className="mt-4 text-base leading-relaxed text-ink/75 sm:text-lg">
-              {post.summary || post.excerpt}
+              {postSummary}
             </p>
           )}
 
@@ -181,17 +186,17 @@ export default function BlogPostPage() {
               <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border border-line bg-line">
                 <Image
                   src={
-                    post.author?.avatarUrl ||
-                    `https://i.pravatar.cc/150?u=${post.author?._id || "author"}`
+                    postAuthor?.avatarUrl ||
+                    `https://i.pravatar.cc/150?u=${postAuthor?._id || "author"}`
                   }
-                  alt={post.author?.name || "Author"}
+                  alt={postAuthor?.name || "Author"}
                   fill
                   className="object-cover"
                 />
               </div>
               <div>
                 <p className="text-xs font-bold text-ink">
-                  {post.author?.name || "Editorial Team"}
+                  {postAuthor?.name || "Editorial Team"}
                 </p>
                 <p className="text-[11px] text-ink/50">Culinary Specialist</p>
               </div>
@@ -200,7 +205,7 @@ export default function BlogPostPage() {
             <div className="flex items-center gap-4 text-xs text-ink/60">
               <span className="flex items-center gap-1.5">
                 <Calendar className="h-3.5 w-3.5 text-plum" />
-                {new Date(post.publishedAt).toLocaleDateString(undefined, {
+                {new Date((post as any).publishedAt || Date.now()).toLocaleDateString(undefined, {
                   year: "numeric",
                   month: "short",
                   day: "numeric",
@@ -209,7 +214,7 @@ export default function BlogPostPage() {
               <span>•</span>
               <span className="flex items-center gap-1.5">
                 <Clock className="h-3.5 w-3.5 text-plum" />
-                {post.readTimeMinutes || 6} min read
+                {postReadTime} min read
               </span>
             </div>
           </div>
@@ -250,20 +255,20 @@ export default function BlogPostPage() {
               <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 border-plum/30">
                 <Image
                   src={
-                    post.author?.avatarUrl ||
-                    `https://i.pravatar.cc/150?u=${post.author?._id || "author"}`
+                    postAuthor?.avatarUrl ||
+                    `https://i.pravatar.cc/150?u=${postAuthor?._id || "author"}`
                   }
-                  alt={post.author?.name || "Author"}
+                  alt={postAuthor?.name || "Author"}
                   fill
                   className="object-cover"
                 />
               </div>
               <div>
                 <h3 className="font-display text-base font-semibold italic text-ink">
-                  Written by {post.author?.name || "Memorable Editorial Team"}
+                  Written by {postAuthor?.name || "Memorable Editorial Team"}
                 </h3>
                 <p className="mt-1 text-xs leading-relaxed text-ink/70">
-                  {post.author?.bio ||
+                  {postAuthor?.bio ||
                     "Passionate about culinary traditions, food chemistry, and weeknight recipes."}
                 </p>
               </div>
@@ -271,7 +276,7 @@ export default function BlogPostPage() {
           </div>
         </article>
 
-        {/* Right Sidebar Column (Related Articles) */}
+        {/* Right Sidebar Column */}
         <aside className="lg:col-span-4">
           <div className="sticky top-24 space-y-6">
             <div className="rounded-3xl border border-line/80 bg-paper p-6 shadow-sm">
@@ -287,7 +292,7 @@ export default function BlogPostPage() {
                   {relatedPosts.map((related) => {
                     const relImage =
                       (related as any).coverImage ||
-                      related.coverImageUrl ||
+                      (related as any).coverImageUrl ||
                       (related as any).imageUrl ||
                       null;
 
@@ -319,7 +324,7 @@ export default function BlogPostPage() {
                             {related.title}
                           </h3>
                           <div className="mt-2 flex items-center justify-between font-mono text-[10px] text-ink/40">
-                            <span>{related.readTimeMinutes || 5} min</span>
+                            <span>{(related as any).readTimeMinutes || 5} min</span>
                             <span className="text-plum group-hover:underline">Read →</span>
                           </div>
                         </div>
