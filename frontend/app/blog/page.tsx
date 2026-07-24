@@ -22,7 +22,7 @@ import { useLocale } from "@/context/LocaleContext";
 export default function BlogPage() {
   const { isAuthenticated } = useAuth();
   const { t } = useLocale();
-  
+
   const { data, isLoading } = useQuery<{ data: BlogPostSummary[] }>({
     queryKey: ["blog"],
     queryFn: () => blogApi.list(),
@@ -111,9 +111,13 @@ export default function BlogPage() {
               >
                 {/* Cover Image */}
                 <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-line/40 lg:col-span-7 lg:aspect-[16/10]">
-                  {featuredPost.coverImage || featuredPost.coverImageUrl ? (
+                  {(featuredPost as any).coverImage || featuredPost.coverImageUrl ? (
                     <Image
-                      src={featuredPost.coverImage || featuredPost.coverImageUrl || ""}
+                      src={
+                        (featuredPost as any).coverImage ||
+                        featuredPost.coverImageUrl ||
+                        ""
+                      }
                       alt={featuredPost.title}
                       fill
                       priority
@@ -156,7 +160,7 @@ export default function BlogPage() {
                     </h2>
 
                     <p className="mt-3 line-clamp-3 text-xs leading-relaxed text-ink/70 sm:text-sm">
-                      {featuredPost.summary || featuredPost.excerpt}
+                      {(featuredPost as any).summary || (featuredPost as any).excerpt}
                     </p>
                   </div>
 
@@ -191,77 +195,84 @@ export default function BlogPage() {
             {/* Remaining Articles Grid */}
             {remainingPosts.length > 0 && (
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {remainingPosts.map((post) => (
-                  <Link
-                    key={post._id}
-                    href={`/blog/${post.slug}`}
-                    className="group flex flex-col justify-between overflow-hidden rounded-3xl border border-line/60 bg-paper transition-all duration-300 hover:-translate-y-1.5 hover:border-plum/30 hover:shadow-xl hover:shadow-plum/5"
-                  >
-                    <div>
-                      {/* Thumbnail Cover */}
-                      <div className="relative aspect-[16/10] w-full overflow-hidden bg-line/40">
-                        {post.coverImage || post.coverImageUrl ? (
-                          <Image
-                            src={post.coverImage || post.coverImageUrl || ""}
-                            alt={post.title}
-                            fill
-                            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center bg-plum/5 font-display text-sm italic text-plum/40">
-                            No Cover
+                {remainingPosts.map((post) => {
+                  const coverSrc =
+                    (post as any).coverImage || post.coverImageUrl || "";
+                  const postExcerpt =
+                    (post as any).summary || (post as any).excerpt;
+
+                  return (
+                    <Link
+                      key={post._id}
+                      href={`/blog/${post.slug}`}
+                      className="group flex flex-col justify-between overflow-hidden rounded-3xl border border-line/60 bg-paper transition-all duration-300 hover:-translate-y-1.5 hover:border-plum/30 hover:shadow-xl hover:shadow-plum/5"
+                    >
+                      <div>
+                        {/* Thumbnail Cover */}
+                        <div className="relative aspect-[16/10] w-full overflow-hidden bg-line/40">
+                          {coverSrc ? (
+                            <Image
+                              src={coverSrc}
+                              alt={post.title}
+                              fill
+                              className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-plum/5 font-display text-sm italic text-plum/40">
+                              No Cover
+                            </div>
+                          )}
+
+                          <div className="absolute right-3 top-3 rounded-full bg-black/50 px-2.5 py-1 font-mono text-[10px] text-white backdrop-blur-md">
+                            {post.readTimeMinutes || 5} min read
                           </div>
-                        )}
-
-                        <div className="absolute right-3 top-3 rounded-full bg-black/50 px-2.5 py-1 font-mono text-[10px] text-white backdrop-blur-md">
-                          {post.readTimeMinutes || 5} min read
                         </div>
-                      </div>
 
-                      {/* Content Section */}
-                      <div className="p-5">
-                        <div className="mb-2 flex items-center gap-2 font-mono text-[11px] text-ink/50">
-                          <span>
-                            {new Date(post.publishedAt).toLocaleDateString(
-                              undefined,
-                              {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                              }
+                        {/* Content Section */}
+                        <div className="p-5">
+                          <div className="mb-2 flex items-center gap-2 font-mono text-[11px] text-ink/50">
+                            <span>
+                              {new Date(post.publishedAt).toLocaleDateString(
+                                undefined,
+                                {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                }
+                              )}
+                            </span>
+                            {post.author?.name && (
+                              <>
+                                <span>•</span>
+                                <span className="line-clamp-1">
+                                  {post.author.name}
+                                </span>
+                              </>
                             )}
-                          </span>
-                          {post.author?.name && (
-                            <>
-                              <span>•</span>
-                              <span className="line-clamp-1">
-                                {post.author.name}
-                              </span>
-                            </>
+                          </div>
+
+                          <h3 className="line-clamp-2 font-display text-xl font-semibold italic leading-snug text-ink transition-colors group-hover:text-plum">
+                            {post.title}
+                          </h3>
+
+                          {postExcerpt && (
+                            <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-ink/70">
+                              {postExcerpt}
+                            </p>
                           )}
                         </div>
-
-                        <h3 className="line-clamp-2 font-display text-xl font-semibold italic leading-snug text-ink transition-colors group-hover:text-plum">
-                          {post.title}
-                        </h3>
-
-                        {(post.summary || post.excerpt) && (
-                          <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-ink/70">
-                            {post.summary || post.excerpt}
-                          </p>
-                        )}
                       </div>
-                    </div>
 
-                    {/* Footer Row */}
-                    <div className="flex items-center justify-between border-t border-line/40 px-5 py-3.5 text-xs font-semibold text-plum">
-                      <span className="flex items-center gap-1.5">
-                        <BookOpen className="h-3.5 w-3.5" /> Read Article
-                      </span>
-                      <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-                    </div>
-                  </Link>
-                ))}
+                      {/* Footer Row */}
+                      <div className="flex items-center justify-between border-t border-line/40 px-5 py-3.5 text-xs font-semibold text-plum">
+                        <span className="flex items-center gap-1.5">
+                          <BookOpen className="h-3.5 w-3.5" /> Read Article
+                        </span>
+                        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             )}
           </div>
