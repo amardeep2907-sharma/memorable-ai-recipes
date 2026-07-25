@@ -39,7 +39,7 @@ const en = {
     aboutUs: "About us",
     contact: "Contact",
     createAccount: "Create account",
-    copyright: "© {year} Memorable. A B.Tech major project.",
+    copyright: "© {year} Memorable. A B.Tech Minor project.",
   },
   home: {
     badge: "AI sous-chef included",
@@ -92,6 +92,7 @@ const en = {
   auth: {
     welcomeBack: "Welcome back",
     loginSubtitle: "Sign in to save recipes and get AI recommendations.",
+    forgotPassword: "Forgot password?",
     signingIn: "Signing in...",
     newHere: "New here?",
     createAccount: "Create an account",

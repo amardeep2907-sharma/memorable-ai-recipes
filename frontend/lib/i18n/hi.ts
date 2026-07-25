@@ -39,7 +39,7 @@ const hi: Translations = {
     aboutUs: "हमारे बारे में",
     contact: "संपर्क करें",
     createAccount: "खाता बनाएं",
-    copyright: "© {year} Memorable. एक B.Tech प्रमुख प्रोजेक्ट।",
+    copyright: "© {year} Memorable. एक B.Tech लघु प्रोजेक्ट।",
   },
   home: {
     badge: "AI सहायक शामिल है",
@@ -92,6 +92,7 @@ const hi: Translations = {
   auth: {
     welcomeBack: "वापसी पर स्वागत है",
     loginSubtitle: "रेसिपीज़ सेव करने और AI सुझाव पाने के लिए साइन इन करें।",
+    forgotPassword: "पासवर्ड भूल गए?",
     signingIn: "साइन इन हो रहा है...",
     newHere: "नए हैं?",
     createAccount: "खाता बनाएं",

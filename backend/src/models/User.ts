@@ -17,6 +17,8 @@ export interface IUser extends Document {
   following: Types.ObjectId[];
   followers: Types.ObjectId[];
   refreshTokenHash?: string;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -39,6 +41,8 @@ const userSchema = new Schema<IUser>(
     following: [{ type: Schema.Types.ObjectId, ref: "User" }],
     followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
     refreshTokenHash: { type: String, select: false },
+    resetPasswordToken: { type: String, select: false },
+    resetPasswordExpires: { type: Date, select: false },
   },
   { timestamps: true }
 );

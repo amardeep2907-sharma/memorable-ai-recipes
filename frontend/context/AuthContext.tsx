@@ -33,19 +33,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
-  // On first load there's no access token in memory yet (it's never persisted
-  // to localStorage), so try to mint a fresh one from the httpOnly refresh
-  // cookie the backend set on a previous login.
+  // Helper to fetch complete user profile including role
+  const fetchUserProfile = useCallback(async () => {
+    try {
+      const meRes = await api.get("/users/me");
+      setUser(meRes.data.data);
+    } catch (err) {
+      console.error("Failed to fetch user profile", err);
+    }
+  }, []);
+
+  // On first load, attempt to refresh session silently using httpOnly cookie
   useEffect(() => {
     let cancelled = false;
 
     async function restoreSession() {
       try {
-        const refreshRes = await api.post("/auth/refresh");
-        setAuthToken(refreshRes.data.data.accessToken);
-        const meRes = await api.get("/users/me");
-        if (!cancelled) setUser(meRes.data.data);
-      } catch {
+        const refreshRes = await api.post("/auth/refresh", {}, { withCredentials: true });
+        
+        const accessToken = refreshRes.data?.data?.accessToken;
+        if (accessToken) {
+          setAuthToken(accessToken);
+          const meRes = await api.get("/users/me");
+          if (!cancelled) setUser(meRes.data.data);
+        }
+      } catch (err: any) {
         if (!cancelled) clearSession();
       } finally {
         if (!cancelled) setIsLoading(false);
@@ -64,36 +76,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     const res = await authApi.login(email, password);
     setAuthToken(res.data.accessToken);
-    setUser(res.data.user);
-  }, []);
+    // Directly fetch updated /users/me so role is always fresh & complete
+    await fetchUserProfile();
+  }, [fetchUserProfile]);
 
   const register = useCallback(async (name: string, email: string, password: string) => {
     const res = await authApi.register(name, email, password);
     setAuthToken(res.data.accessToken);
-    setUser(res.data.user);
-  }, []);
+    await fetchUserProfile();
+  }, [fetchUserProfile]);
 
   const loginWithGoogle = useCallback(async (idToken: string) => {
     const res = await authApi.google(idToken);
     setAuthToken(res.data.accessToken);
-    setUser(res.data.user);
-  }, []);
+    await fetchUserProfile();
+  }, [fetchUserProfile]);
 
   const logout = useCallback(async () => {
     try {
-      await api.post("/auth/logout");
+      await api.post("/auth/logout", {}, { withCredentials: true });
     } catch {
-      // best-effort — clear local state regardless of whether the server call succeeded
+      // best-effort
     }
     clearSession();
   }, [clearSession]);
 
-  // Re-pulls /users/me - call this after saving profile settings so the
-  // navbar/dashboard reflect the new name/avatar without a full reload.
   const refreshUser = useCallback(async () => {
-    const meRes = await api.get("/users/me");
-    setUser(meRes.data.data);
-  }, []);
+    await fetchUserProfile();
+  }, [fetchUserProfile]);
 
   return (
     <AuthContext.Provider

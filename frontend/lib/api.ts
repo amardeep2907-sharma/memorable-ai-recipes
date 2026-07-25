@@ -1,5 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
+
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5001/api",
   withCredentials: true, // sends the httpOnly refresh-token cookie
@@ -109,6 +110,9 @@ export const authApi = {
   register: (name: string, email: string, password: string) =>
     api.post("/auth/register", { name, email, password }).then((r) => r.data),
   google: (idToken: string) => api.post("/auth/google", { idToken }).then((r) => r.data),
+  forgotPassword: (email: string) => api.post("/auth/forgot-password", { email }).then((r) => r.data),
+  resetPassword: (token: string, newPassword: string) =>
+    api.post("/auth/reset-password", { token, newPassword }).then((r) => r.data),
 };
 
 export const uploadApi = {
